@@ -1,0 +1,92 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta name="theme-color" content="#ffffff">
+
+<title>{% block title %}Attendance & Salary{% endblock %}</title>
+
+<link rel="stylesheet" href="{% static 'attendance/style.css' %}">
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="brand">
+
+        <span class="brand-mark">A</span>
+
+        <div class="brand-text">
+            <b>Attendance & Salary</b>
+            <small>Employee Management</small>
+        </div>
+
+    </div>
+
+
+    <nav class="desktop-nav">
+
+        <a href="{% url 'dashboard' %}">
+            Dashboard
+        </a>
+
+        <a href="{% url 'attendance' %}">
+            Attendance
+        </a>
+
+        <a href="{% url 'salary' %}">
+            Salary
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main class="container">
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div class="message">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    {% block content %}{% endblock %}
+
+</main>
+
+
+<!-- Mobile Bottom Navigation -->
+
+<nav class="mobile-nav">
+
+    <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <span class="mobile-icon">⌂</span>
+        <span>Dashboard</span>
+    </a>
+
+    <a href="{% url 'attendance' %}" class="{% if 'attendance' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="mobile-icon">✓</span>
+        <span>Attendance</span>
+    </a>
+
+    <a href="{% url 'salary' %}" class="{% if 'salary' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="mobile-icon">₹</span>
+        <span>Salary</span>
+    </a>
+
+</nav>
+
+</body>
+</html>

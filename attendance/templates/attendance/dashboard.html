@@ -1,0 +1,15 @@
+{% extends "attendance/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h2>Dashboard</h2><p>Live employee, attendance and salary overview</p></div><a class="btn btn-primary" href="{% url 'add_employee' %}">+ Add Employee</a></div>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-label">Total Employees</div><div class="stat-value">{{ total_employees }}</div><div class="stat-note">All employees</div></div>
+<div class="stat-card"><div class="stat-label">Running Salary</div><div class="stat-value">₹{{ running_total|floatformat:2 }}</div><div class="stat-note">Current cycles, updated from attendance</div></div>
+<div class="stat-card"><div class="stat-label">Salary Due</div><div class="stat-value">₹{{ due_total|floatformat:2 }}</div><div class="stat-note">{{ overdue_employees }} employee(s) overdue</div></div>
+<div class="stat-card"><div class="stat-label">Total Paid</div><div class="stat-value">₹{{ paid_total|floatformat:2 }}</div><div class="stat-note">Completed payments</div></div>
+</div>
+<div class="card"><div class="card-header"><div><h3>Employees</h3><p>Click salary history from the Salary section for complete employee records.</p></div><a class="btn btn-light" href="{% url 'salary' %}">Salary</a></div>
+{% if employees %}<div class="table-wrapper"><table class="responsive-table"><thead><tr><th>Employee</th><th>Phone</th><th>Joining</th><th>Rate</th><th>Status</th><th>Action</th></tr></thead><tbody>
+{% for e in employees %}<tr><td class="cell-employee"><div class="employee-info"><div class="avatar">{{ e.name|first|upper }}</div><div><div class="employee-name">{{ e.name }}</div><div class="employee-id">{{ e.employee_id }}</div></div></div></td><td data-label="Phone">{{ e.phone }}</td><td data-label="Joining">{{ e.joining_date|date:"d M Y" }}</td><td data-label="Rate">₹{{ e.hourly_rate }}/hr</td><td data-label="Status">{% if e.status == 'active' %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-danger">Inactive</span>{% endif %}</td><td class="cell-action"><a class="btn btn-light" href="{% url 'edit_employee' e.id %}">Edit</a></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="empty"><h3>No employees yet</h3><p>Add your first employee.</p><a class="btn btn-primary" href="{% url 'add_employee' %}">+ Add Employee</a></div>{% endif %}</div>
+{% endblock %}

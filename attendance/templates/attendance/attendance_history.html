@@ -1,0 +1,6 @@
+{% extends "attendance/base.html" %}
+{% block title %}Attendance History{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h2>Attendance History</h2><p>Every saved working day.</p></div><a class="btn btn-light" href="{% url 'attendance' %}">Add Attendance</a></div>
+<div class="card"><div class="table-wrapper"><table class="responsive-table"><thead><tr><th>Date</th><th>Employee</th><th>Hours</th><th>Daily Salary</th></tr></thead><tbody>{% for r in records %}<tr><td data-label="Date">{{ r.date|date:"d M Y" }}</td><td data-label="Employee">{{ r.employee.name }}</td><td data-label="Hours">{{ r.hours_worked }} hrs</td><td data-label="Daily Salary">₹{{ r.daily_salary|floatformat:2 }}</td></tr>{% empty %}<tr class="empty-row"><td colspan="4">No attendance records.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

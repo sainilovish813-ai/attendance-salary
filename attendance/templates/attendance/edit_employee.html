@@ -1,0 +1,16 @@
+{% extends "attendance/base.html" %}
+{% block title %}Edit Employee{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h2>Edit Employee</h2><p>Update employee information.</p></div><a class="btn btn-light" href="{% url 'dashboard' %}">Back</a></div>
+<div class="card"><div class="card-body"><form method="post">{% csrf_token %}<div class="form-grid">
+<div class="form-group"><label>Employee ID</label><input name="employee_id" value="{{ employee.employee_id }}" required></div>
+<div class="form-group"><label>Employee Name</label><input name="name" value="{{ employee.name }}" required></div>
+<div class="form-group"><label>Phone Number</label><input name="phone" value="{{ employee.phone }}" required></div>
+<div class="form-group"><label>Designation</label><input name="designation" value="{{ employee.designation }}"></div>
+<div class="form-group"><label>Email</label><input type="email" name="email" value="{{ employee.email }}"></div>
+<div class="form-group"><label>Address</label><input name="address" value="{{ employee.address }}"></div>
+<div class="form-group"><label>Joining Date</label><input type="date" name="joining_date" value="{{ employee.joining_date|date:'Y-m-d' }}" required></div>
+<div class="form-group"><label>Hourly Rate (₹)</label><input type="number" name="hourly_rate" value="{{ employee.hourly_rate }}" min="0" step="0.01" required></div>
+<div class="form-group"><label>Status</label><select name="status"><option value="active" {% if employee.status == 'active' %}selected{% endif %}>Active</option><option value="inactive" {% if employee.status == 'inactive' %}selected{% endif %}>Inactive</option></select></div>
+</div><div class="form-actions"><button class="btn btn-primary">Save Changes</button><a class="btn btn-light" href="{% url 'dashboard' %}">Cancel</a></div></form></div></div>
+{% endblock %}

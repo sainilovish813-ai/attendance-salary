@@ -1,0 +1,12 @@
+{% extends "attendance/base.html" %}
+{% block title %}Salary{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h2>Salary</h2><p>Current salary is the total of all attendance in the current salary cycle.</p></div><a class="btn btn-light" href="{% url 'salary_history' %}">Salary History</a></div>
+<div class="card"><div class="table-wrapper"><table class="responsive-table"><thead><tr><th>Employee</th><th>Salary Period</th><th>Days</th><th>Hours</th><th>Rate</th><th>Total Salary</th><th>Status</th><th>Due Date</th><th>Action</th></tr></thead><tbody>
+{% for r in rows %}<tr><td class="cell-employee"><div class="employee-info"><div class="avatar">{{ r.employee.name|first|upper }}</div><div><div class="employee-name">{{ r.employee.name }}</div><div class="employee-id">{{ r.employee.employee_id }}</div></div></div></td>
+<td data-label="Salary Period">{{ r.cycle_start|date:"d M Y" }} - {{ r.cycle_end|date:"d M Y" }}</td><td data-label="Days">{{ r.days }}</td><td data-label="Hours">{{ r.hours }} hrs</td><td data-label="Rate">₹{{ r.employee.hourly_rate }}/hr</td><td data-label="Total Salary"><strong>₹{{ r.salary|floatformat:2 }}</strong></td>
+<td data-label="Status">{% if r.status == 'running' %}<span class="badge badge-blue">Running</span>{% elif r.status == 'paid' %}<span class="badge badge-success">Paid</span>{% elif r.status == 'overdue' %}<span class="badge badge-warning">Overdue</span>{% else %}<span class="badge">No Attendance</span>{% endif %}</td>
+<td data-label="Due Date">{{ r.cycle_end|date:"d M Y" }}</td><td class="cell-action">{% if r.status == 'overdue' and r.payment %}<form method="post" action="{% url 'mark_salary_paid' r.payment.id %}">{% csrf_token %}<button class="btn btn-success">Mark Paid</button></form>{% elif r.status == 'paid' %}<span class="badge badge-success">Paid</span>{% else %}—{% endif %}</td></tr>
+{% empty %}<tr class="empty-row"><td colspan="9">No employees.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

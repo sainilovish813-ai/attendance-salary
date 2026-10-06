@@ -1,0 +1,466 @@
+{% extends "attendance/base.html" %}
+
+{% block title %}Salary History{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .salary-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .salary-header {
+        margin-bottom: 24px;
+    }
+
+    .salary-header h2 {
+        margin: 0 0 6px;
+    }
+
+    .salary-header p {
+        margin: 0;
+        color: #64748b;
+    }
+
+    .cycle-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .cycle-header {
+        padding: 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .cycle-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .cycle-title h3 {
+        margin: 0 0 7px;
+    }
+
+    .cycle-title p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .cycle-salary {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-top: 8px;
+    }
+
+    .overdue-box {
+        text-align: right;
+    }
+
+    .overdue-text {
+        display: block;
+        color: #dc2626;
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .paid-text {
+        display: block;
+        color: #16a34a;
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .running-text {
+        display: block;
+        color: #2563eb;
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .mark-paid-btn {
+        border: none;
+        background: #dc2626;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .mark-paid-btn:hover {
+        background: #b91c1c;
+    }
+
+    .paid-badge {
+        display: inline-block;
+        background: #dcfce7;
+        color: #15803d;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .running-badge {
+        display: inline-block;
+        background: #dbeafe;
+        color: #2563eb;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .daily-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .daily-table th {
+        padding: 13px 16px;
+        text-align: left;
+        background: #ffffff;
+        color: #64748b;
+        font-size: 13px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .daily-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #edf2f7;
+        color: #334155;
+    }
+
+    .daily-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .worked-badge {
+        display: inline-block;
+        background: #dcfce7;
+        color: #15803d;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .no-badge {
+        display: inline-block;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .salary {
+        font-weight: 800;
+    }
+
+    .total-row {
+        background: #f8fafc;
+        font-weight: 800;
+    }
+
+    @media (max-width: 700px) {
+
+        .cycle-top {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .overdue-box {
+            text-align: left;
+        }
+
+        .daily-table {
+            min-width: 0;
+        }
+    }
+
+</style>
+
+
+<div class="salary-page">
+
+    <div class="salary-header">
+
+        <h2>
+            {{ employee.name }} - Payment History
+        </h2>
+
+        <p>
+            Employee ID: {{ employee.employee_id }}
+            &nbsp; • &nbsp;
+            ₹{{ employee.hourly_rate }}/hr
+        </p>
+
+    </div>
+
+
+    {% for cycle in history %}
+
+    <div class="cycle-card">
+
+        <div class="cycle-header">
+
+            <div class="cycle-top">
+
+                <div class="cycle-title">
+
+                    <h3>
+                        {{ cycle.start|date:"d M Y" }}
+                        -
+                        {{ cycle.end|date:"d M Y" }}
+                    </h3>
+
+                    <p>
+                        Salary Cycle
+                    </p>
+
+                    <div class="cycle-salary">
+                        ₹{{ cycle.salary|floatformat:2 }}
+                    </div>
+
+                    <p style="margin-top:6px;">
+
+                        {{ cycle.hours }} hrs
+                        &nbsp; • &nbsp;
+                        {{ cycle.days }} worked days
+
+                    </p>
+
+                </div>
+
+
+                <div class="overdue-box">
+
+                    {% if cycle.status == "overdue" %}
+
+                        <span class="overdue-text">
+                            PAYMENT OVERDUE
+                        </span>
+
+                        {% if cycle.payment %}
+
+                        <form
+                            method="post"
+                            action="{% url 'mark_salary_paid' cycle.payment.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="mark-paid-btn"
+                            >
+                                Mark Paid
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+
+                    {% elif cycle.status == "paid" %}
+
+                        <span class="paid-text">
+                            PAYMENT COMPLETED
+                        </span>
+
+                        <span class="paid-badge">
+                            Paid
+                        </span>
+
+                        {% if cycle.payment.payment_date %}
+
+                        <div style="
+                            margin-top:7px;
+                            color:#64748b;
+                            font-size:12px;
+                        ">
+
+                            Paid on
+                            {{ cycle.payment.payment_date|date:"d M Y" }}
+
+                        </div>
+
+                        {% endif %}
+
+
+                    {% elif cycle.status == "running" %}
+
+                        <span class="running-text">
+                            CURRENT SALARY CYCLE
+                        </span>
+
+                        <span class="running-badge">
+                            Running
+                        </span>
+
+
+                    {% elif cycle.status == "no_attendance" %}
+
+                        <span style="
+                            color:#64748b;
+                            font-size:13px;
+                            font-weight:700;
+                        ">
+                            No Attendance
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div style="overflow-x:auto;">
+
+            <table class="daily-table responsive-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Attendance
+                        </th>
+
+                        <th>
+                            Hours
+                        </th>
+
+                        <th>
+                            Daily Salary
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for day in cycle.daily_details %}
+
+                    {% if day.worked %}
+
+                    <tr>
+
+                        <td data-label="Date">
+                            {{ day.date|date:"d M Y" }}
+                        </td>
+
+                        <td data-label="Attendance">
+
+                            <span class="worked-badge">
+                                Worked
+                            </span>
+
+                        </td>
+
+                        <td data-label="Hours">
+                            {{ day.hours }} hrs
+                        </td>
+
+                        <td class="salary" data-label="Daily Salary">
+                            ₹{{ day.salary|floatformat:2 }}
+                        </td>
+
+                    </tr>
+
+
+                    {% else %}
+
+                    <tr>
+
+                        <td data-label="Date">
+                            {{ day.date|date:"d M Y" }}
+                        </td>
+
+                        <td data-label="Attendance">
+
+                            <span class="no-badge">
+                                No Attendance
+                            </span>
+
+                        </td>
+
+                        <td data-label="Hours">
+                            0 hrs
+                        </td>
+
+                        <td data-label="Daily Salary">
+                            ₹0.00
+                        </td>
+
+                    </tr>
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+                <tr class="total-row">
+
+                    <td colspan="2" class="total-label">
+                        Cycle Total
+                    </td>
+
+                    <td data-label="Hours">
+                        {{ cycle.hours }} hrs
+                    </td>
+
+                    <td data-label="Total Salary">
+                        ₹{{ cycle.salary|floatformat:2 }}
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="cycle-card">
+
+        <div style="padding:25px;">
+            No payment history available.
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

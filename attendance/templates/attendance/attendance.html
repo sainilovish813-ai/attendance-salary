@@ -1,0 +1,225 @@
+{% extends "attendance/base.html" %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+        <h2>Daily Attendance</h2>
+        <p>Future dates cannot be selected.</p>
+    </div>
+
+    <a class="btn btn-light" href="{% url 'attendance_history' %}">
+        History
+    </a>
+
+</div>
+
+
+<!-- DATE SELECTOR -->
+
+<div class="card">
+
+    <div class="card-body">
+
+        <form method="get" action="{% url 'attendance' %}">
+
+            <div class="date-toolbar">
+
+                <div class="form-group">
+
+                    <label for="attendance-date">
+                        Attendance Date
+                    </label>
+
+                    <input
+                        id="attendance-date"
+                        type="date"
+                        name="date"
+                        value="{{ selected_date }}"
+                        max="{{ today }}"
+                        required
+                    >
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    View Date
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ATTENDANCE -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h3>Working Hours</h3>
+
+            <p>
+                Selected Date:
+                <strong>{{ selected_date }}</strong>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="post"
+        action="{% url 'save_attendance' %}?date={{ selected_date }}"
+    >
+
+        {% csrf_token %}
+
+        <!-- Exact date that is being saved -->
+        <input
+            type="hidden"
+            name="date"
+            value="{{ selected_date }}"
+        >
+
+
+        {% if rows %}
+
+        <div class="table-wrapper">
+
+            <table class="responsive-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Employee</th>
+                        <th>Rate</th>
+                        <th>Hours</th>
+                        <th>Daily Salary</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for row in rows %}
+
+                    <tr>
+
+                        <td class="cell-employee">
+
+                            <div class="employee-info">
+
+                                <div class="avatar">
+                                    {{ row.employee.name|first|upper }}
+                                </div>
+
+                                <div>
+
+                                    <div class="employee-name">
+                                        {{ row.employee.name }}
+                                    </div>
+
+                                    <div class="employee-id">
+                                        {{ row.employee.employee_id }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td data-label="Rate">
+                            ₹{{ row.employee.hourly_rate }}/hr
+                        </td>
+
+
+                        <td data-label="Hours">
+
+                            <input
+                                class="hours-input"
+                                type="number"
+                                name="hours_{{ row.employee.id }}"
+                                value="{% if row.record %}{{ row.record.hours_worked }}{% endif %}"
+                                min="0"
+                                max="24"
+                                step="0.25"
+                                placeholder="0"
+                                style="width:100px;padding:9px;border:1px solid #dce3eb;border-radius:8px"
+                            >
+
+                        </td>
+
+
+                        <td data-label="Daily Salary">
+
+                            {% if row.record %}
+
+                                ₹{{ row.record.daily_salary|floatformat:2 }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div
+            class="card-body save-bar"
+            style="text-align:right"
+        >
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Save Attendance for {{ selected_date }}
+            </button>
+
+        </div>
+
+
+        {% else %}
+
+            <div class="empty">
+
+                <h3>No active employees</h3>
+
+            </div>
+
+        {% endif %}
+
+    </form>
+
+</div>
+
+
+{% endblock %}

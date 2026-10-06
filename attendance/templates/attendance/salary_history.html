@@ -1,0 +1,8 @@
+{% extends "attendance/base.html" %}
+{% block title %}Salary History{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h2>Salary History</h2><p>Select an employee to see every salary cycle, attendance and payment status.</p></div><a class="btn btn-light" href="{% url 'salary' %}">Back to Salary</a></div>
+<div class="card"><div class="table-wrapper"><table class="responsive-table"><thead><tr><th>Employee</th><th>Joining Date</th><th>Rate</th><th>Action</th></tr></thead><tbody>
+{% for e in employees %}<tr><td class="cell-employee"><div class="employee-info"><div class="avatar">{{ e.name|first|upper }}</div><div><div class="employee-name">{{ e.name }}</div><div class="employee-id">{{ e.employee_id }}</div></div></div></td><td data-label="Joining Date">{{ e.joining_date|date:"d M Y" }}</td><td data-label="Rate">₹{{ e.hourly_rate }}/hr</td><td class="cell-action"><a class="btn btn-primary" href="{% url 'employee_salary_history' e.id %}">View Full History</a></td></tr>{% empty %}<tr class="empty-row"><td colspan="4">No employees.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}
