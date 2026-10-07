@@ -20,12 +20,9 @@ SECRET_KEY = os.environ.get(
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get(
-        "ALLOWED_HOSTS",
-        "127.0.0.1,localhost"
-    ).split(",")
-    if host.strip()
+    "attendance-salary-sand.vercel.app",
+    "localhost",
+    "127.0.0.1",
 ]
 
 
