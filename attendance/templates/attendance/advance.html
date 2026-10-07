@@ -1,0 +1,479 @@
+{% extends "attendance/base.html" %}
+
+{% block title %}
+Employee Advance
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+
+        <h2>
+            Employee Advance
+        </h2>
+
+        <p>
+            Give advance salary and recover it from future salary.
+        </p>
+
+    </div>
+
+    <a
+        class="btn btn-light"
+        href="{% url 'dashboard' %}"
+    >
+        Dashboard
+    </a>
+
+</div>
+
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h3>
+                Give New Advance
+            </h3>
+
+            <p>
+                Advance amount will be deducted automatically
+                from future salary.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="post"
+        style="padding:20px;"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="form-group">
+
+            <label>
+                Employee
+            </label>
+
+            <select
+                name="employee"
+                required
+            >
+
+                <option value="">
+                    Select Employee
+                </option>
+
+                {% for employee in employees %}
+
+                <option value="{{ employee.id }}">
+
+                    {{ employee.name }}
+                    -
+                    {{ employee.employee_id }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Advance Amount
+            </label>
+
+            <input
+                type="number"
+                name="advance_amount"
+                step="0.01"
+                min="0.01"
+                placeholder="20000"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Deduction Method
+            </label>
+
+            <select
+                name="deduction_type"
+                id="deductionType"
+                required
+            >
+
+                <option value="full">
+                    Next Salary - Full Deduction
+                </option>
+
+                <option value="installment">
+                    Monthly Installment
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div
+            class="form-group"
+            id="installmentBox"
+            style="display:none;"
+        >
+
+            <label>
+                Monthly Installment
+            </label>
+
+            <input
+                type="number"
+                name="installment_amount"
+                step="0.01"
+                min="0.01"
+                placeholder="5000"
+            >
+
+            <small style="
+                display:block;
+                margin-top:6px;
+                color:#64748b;
+            ">
+                Example: ₹20,000 advance
+                → ₹5,000 per month
+                → 4 months
+            </small>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Deduction Start Month
+            </label>
+
+            <input
+                type="date"
+                name="start_month"
+                value="{{ today|date:'Y-m-d' }}"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Notes
+            </label>
+
+            <textarea
+                name="notes"
+                rows="3"
+                placeholder="Optional notes"
+            ></textarea>
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
+            Give Advance
+        </button>
+
+    </form>
+
+</div>
+
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h3>
+                Advance History
+            </h3>
+
+            <p>
+                All employee advances and remaining balances.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table class="responsive-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Employee
+                    </th>
+
+                    <th>
+                        Advance
+                    </th>
+
+                    <th>
+                        Method
+                    </th>
+
+                    <th>
+                        Installment
+                    </th>
+
+                    <th>
+                        Remaining
+                    </th>
+
+                    <th>
+                        Start
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for advance in advances %}
+
+            <tr>
+
+                <td
+                    data-label="Employee"
+                    class="cell-employee"
+                >
+
+                    <div class="employee-info">
+
+                        <div class="avatar">
+                            {{ advance.employee.name|first|upper }}
+                        </div>
+
+                        <div>
+
+                            <div class="employee-name">
+                                {{ advance.employee.name }}
+                            </div>
+
+                            <div class="employee-id">
+                                {{ advance.employee.employee_id }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+
+                <td data-label="Advance">
+
+                    ₹{{ advance.advance_amount|floatformat:2 }}
+
+                </td>
+
+
+                <td data-label="Method">
+
+                    {% if advance.deduction_type == "full" %}
+
+                        <span class="badge badge-blue">
+                            Full Deduction
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge badge-blue">
+                            Monthly Installment
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+
+                <td data-label="Installment">
+
+                    {% if advance.installment_amount %}
+
+                        ₹{{ advance.installment_amount|floatformat:2 }}
+
+                    {% else %}
+
+                        —
+
+                    {% endif %}
+
+                </td>
+
+
+                <td data-label="Remaining">
+
+                    <strong>
+                        ₹{{ advance.remaining_amount|floatformat:2 }}
+                    </strong>
+
+                </td>
+
+
+                <td data-label="Start">
+
+                    {{ advance.start_month|date:"d M Y" }}
+
+                </td>
+
+
+                <td data-label="Status">
+
+                    {% if advance.status == "active" %}
+
+                        <span class="badge badge-warning">
+                            Active
+                        </span>
+
+                    {% elif advance.status == "completed" %}
+
+                        <span class="badge badge-success">
+                            Completed
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge badge-danger">
+                            Cancelled
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+
+                <td data-label="Action">
+
+                    {% if advance.status == "active" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'cancel_advance' advance.id %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-light"
+                        >
+                            Cancel
+                        </button>
+
+                    </form>
+
+                    {% else %}
+
+                        —
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr class="empty-row">
+
+                <td colspan="8">
+                    No advance records yet.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const deductionType =
+    document.getElementById("deductionType");
+
+const installmentBox =
+    document.getElementById("installmentBox");
+
+
+function updateInstallmentBox() {
+
+    if (
+        deductionType.value === "installment"
+    ) {
+
+        installmentBox.style.display =
+            "block";
+
+    } else {
+
+        installmentBox.style.display =
+            "none";
+
+    }
+
+}
+
+
+deductionType.addEventListener(
+    "change",
+    updateInstallmentBox
+);
+
+
+updateInstallmentBox();
+
+</script>
+
+{% endblock %}

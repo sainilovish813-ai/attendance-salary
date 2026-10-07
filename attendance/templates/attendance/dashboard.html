@@ -1,7 +1,39 @@
 {% extends "attendance/base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="page-heading"><div><h2>Dashboard</h2><p>Live employee, attendance and salary overview</p></div><a class="btn btn-primary" href="{% url 'add_employee' %}">+ Add Employee</a></div>
+<div class="page-heading">
+
+    <div>
+        <h2>Dashboard</h2>
+
+        <p>
+            Live employee, attendance and salary overview
+        </p>
+    </div>
+
+    <div style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+    ">
+
+        <a
+            class="btn btn-light"
+            href="{% url 'employee_advance' %}"
+        >
+            ₹ Employee Advance
+        </a>
+
+        <a
+            class="btn btn-primary"
+            href="{% url 'add_employee' %}"
+        >
+            + Add Employee
+        </a>
+
+    </div>
+
+</div>
 <div class="stats-grid">
 <div class="stat-card"><div class="stat-label">Total Employees</div><div class="stat-value">{{ total_employees }}</div><div class="stat-note">All employees</div></div>
 <div class="stat-card"><div class="stat-label">Running Salary</div><div class="stat-value">₹{{ running_total|floatformat:2 }}</div><div class="stat-note">Current cycles, updated from attendance</div></div>

@@ -140,6 +140,18 @@ class SalaryPayment(models.Model):
         decimal_places=2
     )
 
+    advance_deduction = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    net_salary = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
     payment_status = models.CharField(
         max_length=10,
         choices=PAYMENT_STATUS_CHOICES,
@@ -167,3 +179,75 @@ class SalaryPayment(models.Model):
 
     def __str__(self):
         return f"{self.employee.name} - {self.month}"
+
+
+class EmployeeAdvance(models.Model):
+
+    DEDUCTION_TYPE_CHOICES = [
+        ("full", "Next Salary - Full Deduction"),
+        ("installment", "Monthly Installment"),
+    ]
+
+    STATUS_CHOICES = [
+        ("active", "Active"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name="advances"
+    )
+
+    advance_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    remaining_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    deduction_type = models.CharField(
+        max_length=20,
+        choices=DEDUCTION_TYPE_CHOICES,
+        default="full"
+    )
+
+    installment_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    start_month = models.DateField(
+        help_text="Salary cycle from which deduction will start"
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="active"
+    )
+
+    notes = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return (
+            f"{self.employee.name} - "
+            f"₹{self.advance_amount} - "
+            f"{self.get_deduction_type_display()}"
+        )

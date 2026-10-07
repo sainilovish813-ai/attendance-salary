@@ -34,6 +34,18 @@ urlpatterns = [
         views.attendance_page,
         name="attendance"
     ),
+     
+    path(
+    "advance/",
+    views.employee_advance,
+    name="employee_advance"
+    ),
+
+    path(
+        "advance/<int:advance_id>/cancel/",
+        views.cancel_advance,
+        name="cancel_advance"
+    ),
 
     path(
         "attendance/save/",
