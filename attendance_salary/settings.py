@@ -1,17 +1,37 @@
 from pathlib import Path
 import os
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "attendance-salary-final-local-key"
 
-DEBUG = True
+# =========================
+# SECURITY / PRODUCTION
+# =========================
 
-ALLOWED_HOSTS = []
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "attendance-salary-final-local-key"
+)
 
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        "ALLOWED_HOSTS",
+        "127.0.0.1,localhost"
+    ).split(",")
+    if host.strip()
+]
+
+
+# =========================
+# INSTALLED APPS
+# =========================
 
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
@@ -23,8 +43,13 @@ INSTALLED_APPS = [
 ]
 
 
+# =========================
+# MIDDLEWARE
+# =========================
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -32,8 +57,18 @@ MIDDLEWARE = [
 ]
 
 
+# =========================
+# URL / WSGI
+# =========================
+
 ROOT_URLCONF = "attendance_salary.urls"
 
+WSGI_APPLICATION = "attendance_salary.wsgi.application"
+
+
+# =========================
+# TEMPLATES
+# =========================
 
 TEMPLATES = [
     {
@@ -50,24 +85,27 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = "attendance_salary.wsgi.application"
-
+# =========================
+# DATABASE
+# =========================
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'attendance_salary'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
 }
 
 
+# =========================
+# PASSWORD VALIDATION
+# =========================
 
 AUTH_PASSWORD_VALIDATORS = []
 
+
+# =========================
+# LANGUAGE / TIMEZONE
+# =========================
 
 LANGUAGE_CODE = "en-us"
 
@@ -78,7 +116,23 @@ USE_I18N = True
 USE_TZ = True
 
 
+# =========================
+# STATIC FILES
+# =========================
+
 STATIC_URL = "static/"
 
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+
+# =========================
+# DEFAULT PRIMARY KEY
+# =========================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
